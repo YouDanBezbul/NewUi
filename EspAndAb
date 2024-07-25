@@ -901,6 +901,78 @@ function rolibwaita:NewWindow(WindowOptions)
 						end)
 					end
 				end
+
+                                function tabFuncs:NewColorBox(ColorBoxOptions)
+    local colorBoxClone = Examples.ColorBox:Clone()
+    local colorDisplay = colorBoxClone.ColorDisplay
+    local rgbInputs = colorBoxClone.RGBInputs
+    local hexInput = colorBoxClone.HexInput
+    
+    colorBoxClone.Name = ColorBoxOptions.Name
+    colorBoxClone.Title.Text = ColorBoxOptions.Name
+    colorBoxClone.Description.Text = ColorBoxOptions.Description or ""
+    colorBoxClone.LayoutOrder = order
+    order += 1
+
+    local currentColor = ColorBoxOptions.DefaultColor or Color3.new(1, 1, 1)
+    
+    local function updateColorDisplay()
+        colorDisplay.BackgroundColor3 = currentColor
+        rgbInputs.R.Text = tostring(math.floor(currentColor.R * 255))
+        rgbInputs.G.Text = tostring(math.floor(currentColor.G * 255))
+        rgbInputs.B.Text = tostring(math.floor(currentColor.B * 255))
+        hexInput.Text = string.format("#%02X%02X%02X", 
+            math.floor(currentColor.R * 255),
+            math.floor(currentColor.G * 255),
+            math.floor(currentColor.B * 255))
+    end
+    
+    local function updateColorFromRGB()
+        currentColor = Color3.new(
+            tonumber(rgbInputs.R.Text) / 255,
+            tonumber(rgbInputs.G.Text) / 255,
+            tonumber(rgbInputs.B.Text) / 255
+        )
+        updateColorDisplay()
+        if ColorBoxOptions.Callback then
+            ColorBoxOptions.Callback(currentColor)
+        end
+    end
+    
+    local function updateColorFromHex()
+        local hex = hexInput.Text:gsub("#", "")
+        local r, g, b = tonumber("0x"..hex:sub(1,2)), tonumber("0x"..hex:sub(3,4)), tonumber("0x"..hex:sub(5,6))
+        if r and g and b then
+            currentColor = Color3.fromRGB(r, g, b)
+            updateColorDisplay()
+            if ColorBoxOptions.Callback then
+                ColorBoxOptions.Callback(currentColor)
+            end
+        end
+    end
+    
+    rgbInputs.R.FocusLost:Connect(updateColorFromRGB)
+    rgbInputs.G.FocusLost:Connect(updateColorFromRGB)
+    rgbInputs.B.FocusLost:Connect(updateColorFromRGB)
+    hexInput.FocusLost:Connect(updateColorFromHex)
+    
+    colorDisplay.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            -- Here you could implement a color picker UI
+            -- For simplicity, let's just set a random color
+            currentColor = Color3.new(math.random(), math.random(), math.random())
+            updateColorDisplay()
+            if ColorBoxOptions.Callback then
+                ColorBoxOptions.Callback(currentColor)
+            end
+        end
+    end)
+    
+    updateColorDisplay()
+    colorBoxClone.Parent = sectionClone.List
+    
+    return colorBoxClone
+end
 				
 				local textBoxFuncs = {}
 				function textBoxFuncs:Edit(newTextBoxOptions)
