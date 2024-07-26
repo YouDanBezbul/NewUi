@@ -38,12 +38,6 @@ local function onPlayerAdded(player)
     end
 end
 
-Players.PlayerAdded:Connect(onPlayerAdded)
-
--- Xử lý cho các player đã có sẵn
-for _, player in ipairs(Players:GetPlayers()) do
-    onPlayerAdded(player)
-end
 
 function rolibwaita:Init()
     print("Roblibwaita initialized")
@@ -136,6 +130,9 @@ function rolibwaita:NewWindow(WindowOptions)
     table.insert(AllWindows, windowInfo)
 
     title.Text = WindowOptions.Name
+
+    -- Trả về bất kỳ giá trị nào bạn cần (nếu có)
+
 
 	mainFrame.ClipsDescendants = true
 	mainFrame.BackgroundTransparency = 1
