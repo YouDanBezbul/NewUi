@@ -19,6 +19,16 @@ local function recreateAllWindows(player)
             local newGuiClone = windowInfo.guiClone:Clone()
             newGuiClone.Parent = player.PlayerGui
             windowInfo.guiClone = newGuiClone
+            
+            -- Cập nhật tất cả các tham chiếu
+            local mainFrame = newGuiClone.Main
+            local mainCover = mainFrame.Cover
+            local sideBar = mainFrame.SideBar
+            -- ... (cập nhật tất cả các tham chiếu khác)
+            
+            -- Áp dụng lại tất cả các cài đặt và kết nối sự kiện
+            title.Text = windowInfo.options.Name
+            -- ... (áp dụng lại tất cả các cài đặt và kết nối sự kiện khác)
         end
     end
 end
@@ -30,14 +40,20 @@ local function onCharacterAdded(player)
 end
 
 local function onPlayerAdded(player)
-    player.CharacterAdded:Connect(function()
-        onCharacterAdded(player)
-    end)
-    if player.Character then
-        onCharacterAdded(player)
+    if player == Players.LocalPlayer then
+        player.CharacterAdded:Connect(function()
+            recreateAllWindows(player)
+        end)
+        if player.Character then
+            recreateAllWindows(player)
+        end
     end
 end
 
+Players.PlayerAdded:Connect(onPlayerAdded)
+for _, player in ipairs(Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
 
 function rolibwaita:Init()
     print("Roblibwaita initialized")
@@ -95,38 +111,35 @@ function rolibwaita:NewWindow(WindowOptions)
     -- ...
 
     local windowInfo = {
-        guiClone = guiClone,
-        options = WindowOptions,
-        recreate = function(player)
-            if not guiClone.Parent then
-                local newGuiClone = guiClone:Clone()
-                newGuiClone.Parent = player.PlayerGui
-                guiClone = newGuiClone
+    guiClone = guiClone,
+    options = WindowOptions,
+    mainFrame = mainFrame,
+    mainCover = mainCover,
+    sideBar = sideBar,
+    -- ... (lưu trữ tất cả các tham chiếu quan trọng)
+    recreate = function(player)
+    if not guiClone.Parent then
+        local newGuiClone = guiClone:Clone()
+        newGuiClone.Parent = player.PlayerGui
+        guiClone = newGuiClone
+        -- ... (cập nhật tất cả các tham chiếu)
+        reconnectEvents(windowInfo)
+    end
+end
+    -- Lưu trữ các hàm quan trọng
+    hideGUI = hideGUI,
+    unHideGUI = unHideGUI,
+    -- ... (lưu trữ các hàm quan trọng khác)
+}
 
-                -- Cập nhật tất cả các tham chiếu
-                mainFrame = guiClone.Main
-                mainCover = mainFrame.Cover
-                sideBar = mainFrame.SideBar
-                tabButtons = sideBar.Items
-                titleBar = sideBar.TitleBar
-                title = titleBar.Title
-                searchBar = titleBar.SearchBar
-                searchQuery = searchBar.TextBox 
-                topbar = mainFrame.Topbar
-                tabTitle = topbar.TabTitle
-                searchButton = topbar.Search
-                closeButton = topbar.Close
-                tabs = mainFrame.Tabs
-                cover = tabs.Cover
-                resizeCorner = mainFrame.ResizeCorner
-                resizeHitbox = resizeCorner.Hitbox
+local function reconnectEvents(windowInfo)
+    -- Kết nối lại tất cả các sự kiện
+    windowInfo.guiClone.Main.Topbar.Close.Hitbox.MouseButton1Up:Connect(function()
+        windowInfo.hideGUI()
+    end)
+    -- ... (kết nối lại tất cả các sự kiện khác)
+end
 
-                -- Áp dụng lại bất kỳ cài đặt hoặc kết nối sự kiện nào cần thiết
-                title.Text = WindowOptions.Name
-                -- ... (thêm bất kỳ cài đặt hoặc kết nối sự kiện nào khác cần được áp dụng lại)
-            end
-        end
-    }
     table.insert(AllWindows, windowInfo)
 
     title.Text = WindowOptions.Name
