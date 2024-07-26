@@ -137,14 +137,6 @@ function rolibwaita:NewWindow(WindowOptions)
 
     title.Text = WindowOptions.Name
 
-    -- Trả về bất kỳ giá trị nào bạn cần (nếu có)
-    return {
-        -- Các phương thức hoặc thuộc tính bạn muốn cung cấp cho người dùng
-    }
-end
-
-return rolibwaita
-
 	mainFrame.ClipsDescendants = true
 	mainFrame.BackgroundTransparency = 1
 	resizeHitbox.BackgroundTransparency = 1
